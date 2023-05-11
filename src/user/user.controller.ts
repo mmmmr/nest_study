@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Request, Query, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request, Query, Headers, Req, Res } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import * as svgCaptcha from 'svg-captcha';
 
 @Controller('user')
 export class UserController {
@@ -13,10 +14,30 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
-  @Get()
-  findAll(@Query() request) {
-    console.log(request);
-    return this.userService.findAll();
+  @Get('code')
+  createCaptcha(@Req() req, @Res() res) {
+    const captcha = svgCaptcha.create({
+      size: 1,//生成几个验证码
+      fontSize: 50, //文字大小
+      width: 100,  //宽度
+      height: 34,  //高度
+      background: 'white',  //背景颜色
+    })
+
+
+    req.session.code = captcha.text
+    console.log(captcha.text, req.session.code)
+    res.type('image/svg+xml')
+    res.send(captcha.data)
+  }
+
+  @Post('login')
+  login(@Body() body, @Req() req) {
+    let msg = '登录失败！'
+    if (body.code === req.session.code) {
+      msg = '登录成功！'
+    }
+    return {code: 200, msg}
   }
 
   @Get(':id')
