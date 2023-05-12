@@ -17,7 +17,7 @@ export class UserController {
   @Get('code')
   createCaptcha(@Req() req, @Res() res) {
     const captcha = svgCaptcha.create({
-      size: 1,//生成几个验证码
+      size: 2,//生成几个验证码
       fontSize: 50, //文字大小
       width: 100,  //宽度
       height: 34,  //高度
@@ -34,7 +34,7 @@ export class UserController {
   @Post('login')
   login(@Body() body, @Req() req) {
     let msg = '登录失败！'
-    if (body.code === req.session.code) {
+    if (body.code.toLowerCase() === req.session.code.toLowerCase()) {
       msg = '登录成功！'
     }
     return {code: 200, msg}

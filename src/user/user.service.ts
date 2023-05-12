@@ -1,11 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Repository, Like } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
+  constructor(@InjectRepository(User) private readonly user: Repository<User>) { }
   create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+    const data = new User()
+    console.log(createUserDto, this.user)
+    data.name = createUserDto.name
+    data.age = createUserDto.age
+    return this.user.save(data);
   }
 
   findAll() {
@@ -21,6 +29,6 @@ export class UserService {
   }
 
   remove(id: number) {
-    return `This action removes a #${id} user`;
+    return this.user.delete(id)
   }
 }
